@@ -7,10 +7,10 @@ COPY . .
 RUN mvn clean package
 
 
-FROM eclipse-temurin:17-jdk-alpine
+FROM eclipse-temurin:17-jdk
 
 WORKDIR /app
 
 COPY --from=builder /app/target/spring-petclinic-3.4.0-SNAPSHOT.jar app.jar
 
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-jar", "-Dspring.profiles.active=postgres", "app.jar"]
