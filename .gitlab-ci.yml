@@ -12,7 +12,7 @@ variables:
 
 checkstyle:
  stage: check
- image: maven:3.8.5-openjdk-17
+ image: maven:3.8.7-openjdk-18
  script:
    - mvn checkstyle:checkstyle -Dcheckstyle.failOnViolation=false
  artifacts:
@@ -23,14 +23,14 @@ checkstyle:
 
 unit_tests:
  stage: test
- image: maven:3.9.9-ibmjava-8
+ image: maven:3.8.7-openjdk-18
  script:
    - mvn test
 
 
 build_jar:
  stage: build
- image: maven:3.8.5-openjdk-17
+ image: maven:3.8.7-openjdk-18
  script:
    - mvn package -DskipTests
 
