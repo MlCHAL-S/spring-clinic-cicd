@@ -1,0 +1,74 @@
+stages:
+ - check
+ - test
+ - build
+ - docker
+
+
+variables:
+ MAVEN_CLI_OPTS: "-B -Dmaven.repo.local=.m2/repository"
+ IMAGE_NAME: "nexus:8085/mr/spring-petclinic"
+
+
+checkstyle:
+ stage: check
+ image: maven:3.8.5-openjdk-17
+ script:
+   - mvn $MAVEN_CLI_OPTS checkstyle:checkstyle -Dcheckstyle.failOnViolation=false
+ artifacts:
+   paths:
+     - target/checkstyle-result.xml
+   when: always
+
+
+unit_tests:
+ stage: test
+ image: maven:3.8.5-openjdk-17
+ script:
+   - mvn $MAVEN_CLI_OPTS test
+
+
+
+
+build_jar:
+ stage: build
+ image: maven:3.8.5-openjdk-17
+ script:
+   - mvn $MAVEN_CLI_OPTS package -DskipTests
+
+
+
+
+docker_build_mr:
+ stage: docker
+ image: docker:latest
+ services:
+   - docker:dind
+ variables:
+   DOCKER_HOST: tcp://docker:2375/
+   IMAGE_NAME: "nexus:8085/mr/spring-petclinic"
+ script:
+   - docker login nexus:8085 -u "$NEXUS_USER" -p "$NEXUS_PASS"
+   - docker build -t $IMAGE_NAME:$CI_COMMIT_SHORT_SHA .
+   - docker push $IMAGE_NAME:$CI_COMMIT_SHORT_SHA
+ rules:
+   - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+
+
+
+
+docker_build_main:
+ stage: docker
+ image: docker:latest
+ services:
+   - docker:dind
+ variables:
+   DOCKER_HOST: tcp://docker:2375/
+   IMAGE_NAME: "nexus:8084/main/spring-petclinic"
+ script:
+   - docker login nexus:8084 -u "$NEXUS_USER" -p "$NEXUS_PASS"
+   - docker build -t $IMAGE_NAME:$CI_COMMIT_SHORT_SHA .
+   - docker push $IMAGE_NAME:$CI_COMMIT_SHORT_SHA
+ rules:
+   - if: '$CI_COMMIT_BRANCH == "main"'
+
