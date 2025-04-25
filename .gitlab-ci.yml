@@ -1,54 +1,57 @@
 stages:
- - check
- - test
- - build
- - docker
-
+  - check
+  - test
+  - build
+  - docker
 
 variables:
- MAVEN_CLI_OPTS: "-B -Dmaven.repo.local=.m2/repository"
- IMAGE_NAME: "nexus:8085/mr/spring-petclinic"
-
+  MAVEN_CLI_OPTS: "-B -Dmaven.repo.local=.m2/repository"
+  IMAGE_NAME: "nexus:8085/mr/spring-petclinic"
 
 checkstyle:
- stage: check
- image: maven:3.8.5-openjdk-17
- script:
-   - mvn checkstyle:checkstyle
- artifacts:
-   paths:
-     - target/checkstyle-result.xml
-   when: always
-
+  stage: check
+  image: maven:3.8.5-openjdk-17
+  script:
+    - mvn checkstyle:checkstyle
+  artifacts:
+    paths:
+      - target/checkstyle-result.xml
+    when: always
+  tags:
+    - local  # Ensure this job runs on your local runner
 
 unit_tests:
- stage: test
- image: maven:3.8.5-openjdk-17
- script:
-   - mvn clean test -Dmaven.wagon.http.retryHandler.count=3
-
+  stage: test
+  image: maven:3.8.5-openjdk-17
+  script:
+    - mvn clean test -Dmaven.wagon.http.retryHandler.count=3
+  tags:
+    - local  # Ensure this job runs on your local runner
 
 build_jar:
- stage: build
- image: maven:3.8.5-openjdk-17
- script:
-   - mvn package
-
+  stage: build
+  image: maven:3.8.5-openjdk-17
+  script:
+    - mvn package
+  tags:
+    - local  # Ensure this job runs on your local runner
 
 docker_build_mr:
- stage: docker
- image: docker:latest
- services:
-   - docker:dind
- variables:
-   DOCKER_HOST: "docker.io"
-   IMAGE_NAME: spring-pet-clinic
-   TAG_LATEST: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$IMAGE_NAME:latest
- before_script:
-   - apk add --no-cache python3 py3-pip
-   - pip3 install --no-cache-dir awscli
- script:
-   - aws ecr get-login-password --region $AWS_REGION |
-      docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
-   - docker build --cache-from $TAG_LATEST -t $TAG_LATEST .
-   - docker push $TAG_LATEST
+  stage: docker
+  image: docker:latest
+  services:
+    - docker:dind
+  variables:
+    DOCKER_HOST: "docker.io"
+    IMAGE_NAME: spring-pet-clinic
+    TAG_LATEST: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$IMAGE_NAME:latest
+  before_script:
+    - apk add --no-cache python3 py3-pip
+    - pip3 install --no-cache-dir awscli
+  script:
+    - aws ecr get-login-password --region $AWS_REGION |
+        docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
+    - docker build --cache-from $TAG_LATEST -t $TAG_LATEST .
+    - docker push $TAG_LATEST
+  tags:
+    - local  # Ensure this job runs on your local runner
