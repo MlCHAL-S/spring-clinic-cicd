@@ -25,14 +25,14 @@ unit_tests:
  stage: test
  image: maven:3.8.5-openjdk-17
  script:
-   - ./mvnw clean test
+   - mvn clean test -Dmaven.wagon.http.retryHandler.count=3
 
 
 build_jar:
  stage: build
  image: maven:3.8.5-openjdk-17
  script:
-   - ./mvnw package
+   - mvn package
 
 
 docker_build_mr:
