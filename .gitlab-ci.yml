@@ -52,19 +52,3 @@ docker_build_mr:
       docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
    - docker build --cache-from $TAG_LATEST -t $TAG_LATEST .
    - docker push $TAG_LATEST
-
-
-docker_build_main:
- stage: docker
- image: docker:latest
- services:
-   - docker:dind
- variables:
-   DOCKER_HOST: tcp://docker:2375/
-   IMAGE_NAME: "nexus:8084/main/spring-petclinic"
- script:
-   - docker login nexus:8084 -u "$NEXUS_USER" -p "$NEXUS_PASS"
-   - docker build -t $IMAGE_NAME:$CI_COMMIT_SHORT_SHA .
-   - docker push $IMAGE_NAME:$CI_COMMIT_SHORT_SHA
- rules:
-   - if: '$CI_COMMIT_BRANCH == "main"'
