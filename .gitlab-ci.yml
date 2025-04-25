@@ -12,7 +12,7 @@ variables:
 
 checkstyle:
  stage: check
- image: maven:3.8.7-openjdk-18
+ image: maven:3.8.5-openjdk-17
  script:
    - mvn checkstyle:checkstyle
  artifacts:
@@ -23,16 +23,16 @@ checkstyle:
 
 unit_tests:
  stage: test
- image: maven:3.8.7-openjdk-18
+ image: maven:3.8.5-openjdk-17
  script:
-   - mvn clean test
+   - ./mvnw clean test
 
 
 build_jar:
  stage: build
- image: maven:3.8.7-openjdk-18
+ image: maven:3.8.5-openjdk-17
  script:
-   - mvn package
+   - ./mvnw package
 
 
 docker_build_mr:
