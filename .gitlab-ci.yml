@@ -38,9 +38,9 @@ docker_build_mr:
   services:
     - docker:dind
   variables:
-    IMAGE_NAME: spring-pet-clinic
+    IMAGE_NAME: spring-clinic
     DOCKER_TLS_CERTDIR: ""
-    TAG_LATEST: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$IMAGE_NAME:latest
+    TAG_LATEST: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/mszynkaruk-internship/$IMAGE_NAME:latest
   before_script:
     - apk add --no-cache python3 py3-pip
     - python3 -m venv .venv
