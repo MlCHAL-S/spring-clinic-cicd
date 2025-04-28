@@ -54,4 +54,4 @@ docker_build_mr:
     - docker build --cache-from $TAG_LATEST -t $TAG_LATEST .
     - docker push $TAG_LATEST
   tags:
-    - local  # Ensure this job runs on your local runner
+    - local
