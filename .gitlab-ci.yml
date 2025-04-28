@@ -1,8 +1,8 @@
 stages:
+  - docker
   - check
   - test
   - build
-  - docker
 
 variables:
   MAVEN_CLI_OPTS: "-B -Dmaven.repo.local=.m2/repository"
@@ -47,7 +47,9 @@ docker_build_mr:
     TAG_LATEST: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$IMAGE_NAME:latest
   before_script:
     - apk add --no-cache python3 py3-pip
-    - pip3 install --no-cache-dir awscli
+    - python3 -m venv .venv
+    - source .venv/bin/activate
+    - pip install --no-cache-dir awscli
   script:
     - aws ecr get-login-password --region $AWS_REGION |
         docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
